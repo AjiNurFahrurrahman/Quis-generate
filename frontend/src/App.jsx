@@ -867,15 +867,11 @@ export default function App() {
         <div className="print-area max-w-4xl mx-auto">
           <div className="text-center pb-3 mb-6 custom-border-kop">
             <h1 className="text-xl font-bold uppercase tracking-wide">
-              YAYASAN PENDIDIKAN BRUTAL KUIS INDONESIA
+              SOAL KUIS
             </h1>
             <h2 className="text-lg font-bold uppercase mt-0.5">
-              SEKOLAH MENENGAH AI MULTIPLAYER
+              {printMaterialName}
             </h2>
-            <p className="text-xs italic">
-              Alamat: Jl. Cloud Atlas No. 100, Server Gateway Localhost 5000 |
-              Telp: (021) 20260620
-            </p>
           </div>
 
           <div className="grid grid-cols-2 border-2 border-black p-4 mb-8 text-xs font-bold leading-relaxed">
@@ -1586,13 +1582,19 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="bg-zinc-50 border-2 border-black p-5 md:p-6 mb-6">
+                    <div
+                      className="bg-zinc-50 border-2 border-black p-5 md:p-6 mb-6 select-none"
+                      onContextMenu={(e) => e.preventDefault()}
+                    >
                       <p className="text-lg font-black leading-relaxed text-black">
                         {quizQuestions[currentQuestionIdx]?.questionText}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 mb-8">
+                    <div
+                      className="grid grid-cols-1 gap-4 mb-8 select-none"
+                      onContextMenu={(e) => e.preventDefault()}
+                    >
                       {quizQuestions[currentQuestionIdx]?.options.map(
                         (option, idx) => {
                           const letter = String.fromCharCode(65 + idx);
@@ -2008,13 +2010,19 @@ export default function App() {
                           </div>
                         )}
 
-                        <div className="bg-zinc-50 border-2 border-black p-5 md:p-6 mb-6">
+                        <div
+                          className="bg-zinc-50 border-2 border-black p-5 md:p-6 mb-6 select-none"
+                          onContextMenu={(e) => e.preventDefault()}
+                        >
                           <p className="text-lg font-black leading-relaxed text-black">
                             {mpCurrentQuestion?.questionText}
                           </p>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4 mb-8">
+                        <div
+                          className="grid grid-cols-1 gap-4 mb-8 select-none"
+                          onContextMenu={(e) => e.preventDefault()}
+                        >
                           {mpCurrentQuestion?.options.map((option, idx) => {
                             const letter = String.fromCharCode(65 + idx);
                             const isCorrectAnswer =
