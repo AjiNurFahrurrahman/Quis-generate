@@ -34,7 +34,10 @@ import { io } from "socket.io-client";
 
 export default function App() {
   const [apiBaseUrl, setApiBaseUrl] = useState(() => {
-    return localStorage.getItem("quiz_api_url") || "http://localhost:5000/api";
+    return (
+      localStorage.getItem("quiz_api_url") ||
+      "https://quis-generate-production.up.railway.app/api"
+    );
   });
 
   // Authentication & Session States
@@ -2400,7 +2403,7 @@ export default function App() {
                   Secara default, aplikasi kuis ini mencari server backend Anda
                   di alamat:
                   <code className="bg-yellow-100 border border-black px-1.5 py-0.5 text-black font-black mx-1">
-                    http://localhost:5000/api
+                    https://quis-generate-production.up.railway.app/api
                   </code>
                   .
                 </p>
@@ -2419,7 +2422,9 @@ export default function App() {
                     />
                     <button
                       onClick={() => {
-                        saveCustomApiUrl("http://localhost:5000/api");
+                        saveCustomApiUrl(
+                          "https://quis-generate-production.up.railway.app/api",
+                        );
                         fetchMaterials();
                       }}
                       className="bg-black hover:bg-zinc-800 text-white border-2 border-black px-4 py-2 font-black text-xs shrink-0"
