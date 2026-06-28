@@ -48,6 +48,10 @@ export default function App() {
   const [userId, setUserId] = useState(
     localStorage.getItem("quiz_user_id") || "",
   );
+  const [userRole, setUserRole] = useState(
+    localStorage.getItem("quiz_user_role") || "student",
+  );
+  const [quizEndedByCheat, setQuizEndedByCheat] = useState(false);
 
   // Auth Form Input States
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -340,6 +344,28 @@ export default function App() {
     quizQuestions,
   ]);
 
+  // Anti-cheat: quiz selesai otomatis jika user pindah tab/window
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (
+        document.hidden &&
+        currentTab === "quiz" &&
+        selectedMaterial &&
+        !quizFinished &&
+        quizQuestions.length > 0
+      ) {
+        if (timerRef.current) clearInterval(timerRef.current);
+        setQuizEndedByCheat(true);
+        setQuizFinished(true);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [currentTab, selectedMaterial, quizFinished, quizQuestions]);
+
   const handleTimeout = () => {
     const wrongQ = quizQuestions[currentQuestionIdx];
     setWrongAnswersHistory((prev) => [
@@ -457,10 +483,12 @@ export default function App() {
         localStorage.setItem("quiz_token", data.token);
         localStorage.setItem("quiz_username", data.user.username);
         localStorage.setItem("quiz_user_id", data.user.id);
+        localStorage.setItem("quiz_user_role", data.user.role || "student");
 
         setToken(data.token);
         setUsername(data.user.username);
         setUserId(data.user.id);
+        setUserRole(data.user.role || "student");
 
         setAuthUsername("");
         setAuthPassword("");
@@ -476,10 +504,12 @@ export default function App() {
     localStorage.removeItem("quiz_token");
     localStorage.removeItem("quiz_username");
     localStorage.removeItem("quiz_user_id");
+    localStorage.removeItem("quiz_user_role");
 
     setToken("");
     setUsername("");
     setUserId("");
+    setUserRole("student");
     quitQuiz();
     resetMultiplayerState();
   };
@@ -809,6 +839,7 @@ export default function App() {
     setSelectedMaterial(null);
     setQuizQuestions([]);
     setQuizFinished(false);
+    setQuizEndedByCheat(false);
   };
 
   const toggleFlashcardFlip = (idx) => {
@@ -916,26 +947,31 @@ export default function App() {
             </div>
           )}
 
-          <div className="page-break print-break-before mt-12 pt-8 border-t-2 border-dashed border-black">
-            <div className="text-center font-bold underline uppercase text-sm mb-6">
-              LEMBAR KUNCI JAWABAN (KHUSUS GURU)
-            </div>
-            <p className="text-xs italic mb-4 font-sans text-zinc-500 no-print">
-              *Halaman ini akan otomatis terpotong di kertas terpisah saat
-              dicetak fisik.
-            </p>
+          {userRole === "guru" && (
+            <div className="page-break print-break-before mt-12 pt-8 border-t-2 border-dashed border-black">
+              <div className="text-center font-bold underline uppercase text-sm mb-6">
+                LEMBAR KUNCI JAWABAN (KHUSUS GURU)
+              </div>
+              <p className="text-xs italic mb-4 font-sans text-zinc-500 no-print">
+                *Halaman ini akan otomatis terpotong di kertas terpisah saat
+                dicetak fisik.
+              </p>
 
-            <div className="grid grid-cols-5 gap-4 font-bold text-sm">
-              {printQuestions.map((q, idx) => (
-                <div key={idx} className="border border-black p-2 text-center">
-                  Soal {idx + 1} :{" "}
-                  <span className="bg-yellow-100 px-1">
-                    {String.fromCharCode(65 + q.correctAnswerIndex)}
-                  </span>
-                </div>
-              ))}
+              <div className="grid grid-cols-5 gap-4 font-bold text-sm">
+                {printQuestions.map((q, idx) => (
+                  <div
+                    key={idx}
+                    className="border border-black p-2 text-center"
+                  >
+                    Soal {idx + 1} :{" "}
+                    <span className="bg-yellow-100 px-1">
+                      {String.fromCharCode(65 + q.correctAnswerIndex)}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     );
@@ -1678,6 +1714,12 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="bg-white neo-border p-8 neo-shadow-lg text-center">
+                    {quizEndedByCheat && (
+                      <div className="bg-red-500 border-4 border-black p-3 mb-6 text-white font-black text-sm">
+                        ⚠️ KUIS DIHENTIKAN OTOMATIS! Kamu terdeteksi berpindah
+                        tab/aplikasi saat kuis berlangsung.
+                      </div>
+                    )}
                     <div className="bg-[#A3E635] border-4 border-black p-4 inline-block rotate-[-2deg] mb-6">
                       <Award className="w-16 h-16 text-black stroke-[2] mx-auto mb-2" />
                       <h2 className="text-2xl font-black text-black">

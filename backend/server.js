@@ -104,6 +104,7 @@ const openai = new OpenAI({
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true },
+  role: { type: String, default: "student" },
   createdAt: { type: Date, default: Date.now },
 });
 const User = mongoose.model("User", UserSchema);
@@ -458,7 +459,7 @@ app.post("/api/auth/login", async (req, res) => {
 
     // Buat token JWT untuk sesi masuk (aktif selama 7 hari)
     const token = jwt.sign(
-      { userId: user._id, username: user.username },
+      { userId: user._id, username: user.username, role: user.role },
       JWT_SECRET,
       { expiresIn: "7d" },
     );
@@ -469,6 +470,7 @@ app.post("/api/auth/login", async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
+        role: user.role,
       },
     });
   } catch (err) {
